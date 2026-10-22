@@ -3,54 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GOT Finder</title>
+  <title>GOT Ultimate Guide</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body class="bg-body-tertiary">
 
   <!-- Top Navbar & Search -->
-  <nav class="navbar navbar-expand-lg bg-secondary navbar-dark sticky-top shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#" id="brand-reset">
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container gap-3">
+      <a class="navbar-brand" href="#" id="brand-reset">
         </span> GOT Finder
       </a>
-      <form class="d-flex" id="search-form" role="search">
-        <div class="input-group">
-          <input class="form-control" type="search" id="search-input" placeholder="Search by name or ID..." aria-label="Search">
-          <button class="btn btn-dark" type="submit">Search</button>
-          <button class="btn btn-outline-light d-none" type="button" id="clear-search-btn">Reset</button>
-        </div>
+      <form class="d-flex gap-2" id="search-form" role="search">
+        <input id ="search-input" class="form-control" type="search" placeholder="Search by name or ID">
+        <button class="btn btn-warning" type="submit">Search</button>
+        <button id="clear-search btn" class="btn btn-outline-light d-none type=button">Reset</button>
       </form>
     </div>
   </nav>
 
   <main class="container py-4">
     <!-- Loading Indicator -->
-    <div id="loading-spinner" class="text-center my-5 d-none">
-      <div class="spinner-border text-info" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
+    <div id="loading-spinner" class="text-center d-none">
+      <div class="spinner-border" role="status"></div>
+        <p>Loading characters...</p>
       <p class="mt-2 text-secondary">Querying Express Backend...</p>
     </div>
 
     <!-- Error Screen -->
-    <div id="error-view" class="alert alert-secondary text-center my-4 d-none" role="alert">
-      <h4 class="alert-heading fw-bold">Entry Not Found!</h4>
-      <p id="error-message">The requested Entry does not exist in the database.</p>
-      <hr>
-      <button class="btn btn-outline-dark" id="error-reset-btn">Return to Full Catalog</button>
+    <div id="error-view" class="alert alert-danger d-none" role="alert">
+      <h2 class="h4">Could not load characters</h2>
+      <p id="error-message"></p> <!--left empty so JS can display the message-->
+      <button type ="button" class="btn btn-outline-dark" id="error-reset-btn">Return to beginning</button>
     </div>
 
     <!-- Scrollable Catalog Grid -->
     <section id="catalog-section">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0 text-secondary" id="catalog-subtitle">Catalog</h5>
-        <span class="badge bg-secondary" id="catalog-count">0 entries</span>
+      <div class="d-flex justify-content-between mb-3">
+        <h1 class="h4" id="catalog-subtitle">All characters</h5>
+        <span  id="catalog-count"></span><!--empty so js displays message again-->
       </div>
-      <div class="catalog-scroll-container p-2 rounded border bg-body">
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3" id="catalog-grid">
-          <!-- Dynamically populated via app.js -->
+        <div class="catalog-scroll-container">
+          <div id="catalog-grid" class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
         </div>
       </div>
     </section>
@@ -59,66 +54,48 @@
   <!-- Detail Modal with Left/Right Navigation -->
   <div class="modal fade" id="characters-modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-info text-white">
-          <h5 class="modal-title fw-bold text-capitalize" id="modal-name">Character Name</h5>
-          <span class="badge bg-dark ms-2 fs-6" id="modal-id">#000</span>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5" id="modal-name"></h2><!--empty so js displays message again-->
+          <span class="badge bg-secondary" id="modal-id"></span><!--empty so js displays message again-->
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <div class="modal-body p-4">
-          <div class="row align-items-center">
+        <div class="modal-body">
+          <div class="row g-4">
             <!-- Left Column: Sprite & Types -->
-            <div class="col-md-5 text-center mb-3 mb-md-0">
-              <div class="sprite-wrapper p-3 rounded bg-body-tertiary border mb-3">
-                <img id="modal-img" src="" alt="Character Sprite" class="img-fluid characters-detail-img">
-              </div>
-              <div id="modal-types" class="d-flex justify-content-center gap-2 flex-wrap"></div>
+            <div class="col-md-5 text-center">
+                <img id="modal-img" alt = "" class="characters-detail-img">
             </div>
 
             <!-- Right Column: Stats, Abilities, Moves, Characteristics, etc. -->
             <div class="col-md-7">
-              <div class="row g-2 text-center mb-3">
-                <div class="col-4">
-                  <div class="p-2 border rounded bg-body-tertiary">
-                    <small class="text-secondary d-block">Age</small>
-                    <span class="fw-bold" id="modal-exp">-</span>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="p-2 border rounded bg-body-tertiary">
-                    <small class="text-secondary d-block">Height</small>
-                    <span class="fw-bold" id="modal-height">-</span>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="p-2 border rounded bg-body-tertiary">
-                    <small class="text-secondary d-block">Weight</small>
-                    <span class="fw-bold" id="modal-weight">-</span>
-                  </div>
-                </div>
-              </div>
-              <!-- Add the details requested in your exercise. -->
-              <div class="mb-3">
-                <h6 class="fw-bold text-secondary mb-1">Features</h6>
-                <div id="modal-abilities" class="d-flex flex-wrap gap-1"></div>
-              </div>
+              <p><strong>First name:</strong> <span id="modal-exp"></span></p>
+              <p><strong>Last name:</strong> <span id="modal-height"></span></p>
+              <p><strong>Family:</strong> <span id="modal-weight"></span></p>
+              <p><strong>Title:</strong> <span id="modal-abilities"></span></p>
 
-              <div>
-                <h6 class="fw-bold text-secondary mb-1">Characteristics</h6>
-                <div id="modal-moves" class="moves-scroll-box p-2 border rounded bg-body-tertiary d-flex flex-wrap gap-1"></div>
-              </div>
+              <p><strong>Born:</strong> Not available</p>
+              <p><strong>Died:</strong> Not available</p>
+              <p><strong>Aliases:</strong> Not available</p>
+
+              <p class="mb-1"><strong>Family crest:</strong></p>
+              <img id="modal-crest" class="family-crest" alt="Crest unavailable">
             </div>
           </div>
+
+          <p class="text-secondary small mt-3 mb-0">
+            Thrones API does not provide dates, aliases, or family crests. :(
+          </p>
         </div>
 
-        <div class="modal-footer d-flex justify-content-between bg-body-tertiary">
-          <button type="button" class="btn btn-outline-light px-4" id="prev-btn">
-            &larr; Previous
+        <div class="modal-footer justify-content-between">
+          <button id="prev-btn" class="btn btn-outline-dark" type="button">
+            ← Previous
           </button>
-          <span class="text-secondary small">Use Left / Right arrows to navigate</span>
-          <button type="button" class="btn btn-outline-light px-4" id="next-btn">
-            Next &rarr;
+
+          <button id="next-btn" class="btn btn-outline-dark" type="button">
+            Next →
           </button>
         </div>
       </div>
@@ -126,6 +103,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
