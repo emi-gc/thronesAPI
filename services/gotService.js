@@ -1,3 +1,4 @@
+import { getBiography } from "./iceAndFire.js";
 // service to obtain all characters
 const API_URL = "https://thronesapi.com/api/v2/Characters";
 
@@ -65,6 +66,7 @@ export async function getCharacterByIdOrSearch(identifier) {
     if(index === -1) return null;
 
     const character = characters[index];
+    const biography = await getBiography(character.fullName);
 
     // Navigation between characters
     const prevIndex = (index -1 + characters.length) % characters.length;

@@ -37,6 +37,9 @@ const modalExp = document.getElementById('modal-exp');
 const modalHeight = document.getElementById('modal-height');
 const modalWeight = document.getElementById('modal-weight');
 const modalAbilities = document.getElementById('modal-abilities');
+const modalBorn = document.getElementById("modal-born");
+const modalDied = document.getElementById("modal-died");
+const modalAliases = document.getElementById("modal-aliases");
 const modalMoves = document.getElementById('modal-moves');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
@@ -162,7 +165,10 @@ function populateModal(character) {
   modalExp.textContent = character.firstName || 'Not available';
   modalHeight.textContent = character.lastName || 'Not available';
   modalWeight.textContent = character.family || 'Not available';
-  modalAbilities.textContent = character.title || 'Not available';
+  modalAbilities.textContent = character.title || 'Not available
+  modalBorn.textContent = character.born || "Not available";
+  modalDied.textContent = character.died || "Not available";
+  modalAliases.textContent = character.aliases || "Not available";';
 
   modalCrest.src = DEFAULT_IMAGE;
 
