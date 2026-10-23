@@ -1,15 +1,15 @@
 import express from 'express';
-import { getCatalog, getCharacter } from "./services/gotService.js";
+import { getCatalog, getCharacterByIdOrSearch } from "./services/gotService.js";
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5501;
 
 // Serve the static frontend from ./public
 app.use(express.static('public'));
 
-app.get("/api/characters", async (requestAnimationFrame, res) => {
+app.get("/api/characters", async (req, res) => {
   try {
-    const characters = await getCatalog(requestAnimationFrame.query.name || "");
+    const characters = await getCatalog(req.query.name || "");
     if (characters.length===0) {
       return res.status(404).json({
         message: "No characters found."
@@ -28,7 +28,7 @@ app.get("/api/characters", async (requestAnimationFrame, res) => {
 
 app.get("/api/character", async (req, res) => {
   try {
-    const character = await getCharacter(req.query.id);
+    const character = await getCharacterByIdOrSearch(req.query.id || req.query.name);
 
     if (!character){
       return res.status(404).json({

@@ -1,3 +1,5 @@
+import { getCharacters, getCharacter } from "../routes/api.js";
+
 // Offline SVG Fallback for missing/broken sprites
 const DEFAULT_IMAGE = "data:image/svg+xml;utf8," + encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
@@ -38,11 +40,13 @@ const modalAbilities = document.getElementById('modal-abilities');
 const modalMoves = document.getElementById('modal-moves');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
+const modalCrest = document.getElementById('modal-crest');
 
 // Navigation state
 let currentPrevId = null;
 let currentNextId = null;
 let isModalOpen = false;
+let isLoading = false;
 
 modalElement.addEventListener('shown.bs.modal', () => { isModalOpen = true; });
 modalElement.addEventListener('hidden.bs.modal', () => { isModalOpen = false; });
@@ -51,35 +55,29 @@ modalElement.addEventListener('hidden.bs.modal', () => { isModalOpen = false; })
  * Fetch and render the catalog list from the student's Express API
  */
 async function loadCatalog(searchQuery = '') {
+  if(isLoading) return;
+
+  isLoading = true;
   showLoading(true);
   hideError();
 
   try {
     // Define your search enpoint here.
-    const endpoint = '/api';
-
-    const response = await fetch(endpoint);
-    if (response.status === 404) {
-      showError(`No character matched "${searchQuery}".`);
-      return;
-    }
-    if (!response.ok) throw new Error(`Server responded with status ${response.status}`);
-
-    const data = await response.json();
-    const list = Array.isArray(data) ? data : (data.results || []);
-
+    const list = await getCharacters(searchQuery);
     if (list.length === 0) {
       showError(searchQuery ? `No character found matching "${searchQuery}".` : 'The catalog is empty.');
       return;
-    }
-
+    } 
+    
     renderCatalog(list, searchQuery);
   } catch (err) {
-    showError(`Failed to communicate with backend API: ${err.message}`);
+    showError(err.message);
   } finally {
-    showLoading(false);
+      isLoading = false;
+      showLoading(false);
+    }
   }
-}
+
 
 /**
  * Render catalog cards inside the scrollable container
@@ -96,24 +94,24 @@ function renderCatalog(characterList, searchQuery) {
 
     const card = document.createElement('div');
     card.className = 'card h-100 char-card bg-body-tertiary border-secondary-subtle text-center p-2';
-    card.addEventListener('click', () => openDetail(character.id || character.name));
+    card.addEventListener('click', () => openDetail(character.id));
 
     const img = document.createElement('img');
     img.className = 'card-img-top char-card-img mx-auto my-2';
-    img.alt = character.name;
-    img.src = character.image || DEFAULT_IMAGE;
+    img.alt = character.fullName;
     img.onerror = () => { img.onerror = null; img.src = DEFAULT_IMAGE; };
+    img.src = character.image || DEFAULT_IMAGE;
 
     const body = document.createElement('div');
     body.className = 'card-body p-1';
 
     const idBadge = document.createElement('span');
     idBadge.className = 'badge bg-secondary-subtle text-secondary-emphasis mb-1';
-    idBadge.textContent = character.id ? `#${String(character.id).padStart(3, '0')}` : '';
+    idBadge.textContent = `#${String(character.id).padStart(3, '0')}`;
 
     const title = document.createElement('h6');
     title.className = 'card-title text-capitalize mb-1 fw-bold text-truncate';
-    title.textContent = character.name;
+    title.textContent = character.fullName;
 
     body.append(idBadge, title);
     card.append(img, body);
@@ -126,79 +124,47 @@ function renderCatalog(characterList, searchQuery) {
  * Fetch single Character detail and open/update modal
  */
 async function openDetail(identifier) {
-  if (identifier === null || identifier === undefined) return;
+  if (identifier === null || identifier === undefined || isLoading) return;
+  isLoading = true;
+  prevBtn.disabled = true;
+  nextBtn.disabled = true;
 
   try {
     // Set the enpoint for retrieving the information.
-    const response = await fetch(`/api`);
+    const character = await getCharacter(identifier);
 
-    if (response.status === 404) {
-      if (isModalOpen) characterModal.hide();
-      showError(`Character "${identifier}" was not found.`);
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error(`Server status ${response.status}`);
-    }
-
-    const character = await response.json();
     populateModal(character);
 
     if (!isModalOpen) {
       characterModal.show();
     }
-  } catch (err) {
-    if (isModalOpen) characterModal.hide();
-    showError(`Error loading character details: ${err.message}`);
-  }
+} catch (err) {
+  if (isModalOpen) characterModal.hide();
+  showError(err.message);
+} finally {
+  isLoading=false;
+  prevBtn.disabled = currentPrevId === null;
+  nextBtn.disabled = currentNextId === null;
+}
 }
 
 /**
  * Populate modal DOM elements with backend payload
  */
 function populateModal(character) {
-  modalName.textContent = character.name || 'Unknown';
-  modalId.textContent = character.id ? `#${String(character.id).padStart(3, '0')}` : '#???';
+  modalName.textContent = character.fullName || 'Unknown';
+  modalId.textContent = `#${String(character.id).padStart(3, '0')}`;
 
-  modalImg.src = character.image || DEFAULT_IMAGE;
+  modalImg.alt = character.fullName; // accesibility!!!!
   modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = DEFAULT_IMAGE; };
+  modalImg.src = character.image || DEFAULT_IMAGE;
+  
+  modalExp.textContent = character.firstName || 'Not available';
+  modalHeight.textContent = character.lastName || 'Not available';
+  modalWeight.textContent = character.family || 'Not available';
+  modalAbilities.textContent = character.title || 'Not available';
 
-  modalExp.textContent = character.experience ?? '-';
-  modalHeight.textContent = character.height ?? '-';
-  modalWeight.textContent = character.weight ?? '-';
-
-  // Render Types
-  modalTypes.innerHTML = '';
-  (character.types || []).forEach((type) => {
-    const badge = document.createElement('span');
-    badge.className = 'badge bg-info text-uppercase px-3 py-2';
-    badge.textContent = type;
-    modalTypes.appendChild(badge);
-  });
-
-  // Render Abilities
-  modalAbilities.innerHTML = '';
-  (character.abilities || []).forEach((ability) => {
-    const badge = document.createElement('span');
-    badge.className = 'badge bg-secondary text-capitalize';
-    badge.textContent = ability;
-    modalAbilities.appendChild(badge);
-  });
-
-  // Render Moves
-  modalMoves.innerHTML = '';
-  const moves = character.moves || [];
-  if (moves.length === 0) {
-    modalMoves.innerHTML = '<span class="text-secondary small">No moves listed</span>';
-  } else {
-    moves.forEach((move) => {
-      const badge = document.createElement('span');
-      badge.className = 'badge border border-secondary text-body-secondary text-capitalize';
-      badge.textContent = move;
-      modalMoves.appendChild(badge);
-    });
-  }
+  modalCrest.src = DEFAULT_IMAGE;
 
   // Bind Circular Navigation IDs provided by Backend
   currentPrevId = character.prevId ?? null;
@@ -219,10 +185,12 @@ nextBtn.addEventListener('click', () => {
 
 // Keyboard Arrow Navigation inside Modal
 document.addEventListener('keydown', (e) => {
-  if (!isModalOpen) return;
+  if (!isModalOpen || isLoading) return;
   if (e.key === 'ArrowLeft' && currentPrevId !== null) {
+    e.preventDefault(); // stops browser normal action for event
     openDetail(currentPrevId);
   } else if (e.key === 'ArrowRight' && currentNextId !== null) {
+    e.preventDefault();
     openDetail(currentNextId);
   }
 });
@@ -230,7 +198,11 @@ document.addEventListener('keydown', (e) => {
 // Event Listeners: Search & Reset
 searchForm.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  if (isLoading) return;
+
   const query = searchInput.value.trim();
+
   if (query) {
     clearSearchBtn.classList.remove('d-none');
     loadCatalog(query);
@@ -240,6 +212,7 @@ searchForm.addEventListener('submit', (e) => {
 });
 
 function resetToFullCatalog() {
+  if (isLoading) return;
   searchInput.value = '';
   clearSearchBtn.classList.add('d-none');
   loadCatalog();
@@ -247,6 +220,7 @@ function resetToFullCatalog() {
 
 clearSearchBtn.addEventListener('click', resetToFullCatalog);
 errorResetBtn.addEventListener('click', resetToFullCatalog);
+
 brandReset.addEventListener('click', (e) => {
   e.preventDefault();
   resetToFullCatalog();
@@ -254,6 +228,10 @@ brandReset.addEventListener('click', (e) => {
 
 // UI Helper Functions
 function showLoading(isLoading) {
+  searchInput.disabled = isLoading;
+  clearSearchBtn.disabled = isLoading;
+  errorResetBtn.disabled = isLoading;
+
   loadingSpinner.classList.toggle('d-none', !isLoading);
   if (isLoading) catalogSection.classList.add('d-none');
 }
