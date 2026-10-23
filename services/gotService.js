@@ -74,6 +74,10 @@ export async function getCharacterByIdOrSearch(identifier) {
 
     return {
         ...character,
+        born: biography.born || "",
+        died: biography.died || "",
+        aliases: (biography.aliases || []).join(", "), // join turns array into readable text
+        title: (biography.titles || []).join(", ") || character.title,
         prevId: characters[prevIndex].id,
         nextId: characters[nextIndex].id
     };

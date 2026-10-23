@@ -165,10 +165,10 @@ function populateModal(character) {
   modalExp.textContent = character.firstName || 'Not available';
   modalHeight.textContent = character.lastName || 'Not available';
   modalWeight.textContent = character.family || 'Not available';
-  modalAbilities.textContent = character.title || 'Not available
+  modalAbilities.textContent = character.title || 'Not available';
   modalBorn.textContent = character.born || "Not available";
   modalDied.textContent = character.died || "Not available";
-  modalAliases.textContent = character.aliases || "Not available";';
+  modalAliases.textContent = character.aliases || "Not available";
 
   modalCrest.src = DEFAULT_IMAGE;
 
