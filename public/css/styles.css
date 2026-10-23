@@ -1,4 +1,6 @@
 body {
+  background-color: #121212 !important;
+  color: darkgrey;
   font-family: Arial, sans-serif;
   font-size: 16px;
 }
@@ -52,4 +54,49 @@ body {
   width: 90px;
   height: 90px;
   object-fit: contain;
+}
+
+.navbar {
+  background-color: #1a1a1a !important;
+  border-bottom: 2px solid #d4af37;
+}
+
+.card {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  color: #fff;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); /* Brillo dorado al pasar el mouse */
+}
+
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+}
+
+.characters-detail-img {
+  width: 100%;
+  max-height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #d4af37;
+}
+
+.family-crest {
+  max-height: 60px;
+  object-fit: contain;
+}
+
+.modal-content {
+  background-color: #1c1c1c;
+  color: #f8f9fa;
+  border: 1px solid #444;
+}
+
+.modal-header, .modal-footer {
+  border-color: #333;
 }

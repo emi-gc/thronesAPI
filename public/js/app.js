@@ -170,7 +170,8 @@ function populateModal(character) {
   modalDied.textContent = character.died || "Not available";
   modalAliases.textContent = character.aliases || "Not available";
 
-  modalCrest.src = DEFAULT_IMAGE;
+  modalCrest.src = character.crest || DEFAULT_IMAGE;
+  modalCrest.onerror = () => { modalCrest.onerror = null; modalCrest.src = DEFAULT_IMAGE; };
 
   // Bind Circular Navigation IDs provided by Backend
   currentPrevId = character.prevId ?? null;

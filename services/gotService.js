@@ -4,6 +4,23 @@ const API_URL = "https://thronesapi.com/api/v2/Characters";
 
 let charactersData = [];
 
+// Local "database" for the family crests. Main families
+
+const familyCrestsMap = {
+    "stark": "/images/crests/House_Stark.png",
+    "lannister": "/images/crests/House_Lannister.png",
+    "lanister": "/images/crests/House_Lannister.png",
+    "targaryen": "/images/crests/House_Targaryen_crest.png",
+    "targaryan": "/images/crests/House_Targaryen_crest.png",
+    "baratheon": "/images/crests/House_Baratheon.png",
+    "greyjoy": "/images/crests/House_Greyjoy.png",
+    "tyrell": "/images/crests/House_Tyrell.png",
+    "martell": "/images/crests/House_Martell.png",
+    "tarly": "/images/crests/Tarly.png",
+    // Default image
+    "default": "/images/crests/default.jpg" 
+};
+
 
 export async function fetchAllCharacters() {
     if(charactersData.length > 0) return charactersData;
@@ -15,18 +32,32 @@ export async function fetchAllCharacters() {
 
         // Format data according to documentation
         data.sort((a,b)=> a.id - b.id); // Follows ID order if api returns unsorted list
-        charactersData = data.map((char, index) =>({
-            // api info
-            id: char.id,
-            firstName: char.firstName,
-            lastName: char.lastName,
-            fullName: char.fullName,
-            title: char.title,
-            family: char.family,
-            image: char.imageUrl,
-            // index to make character array
-            index: index
-        }));
+        charactersData = data.map((char, index) => {
+            const rawFamily = (char.family || "").toLowerCase();
+
+            // Search for keywords
+            let crestPath = familyCrestsMap["default"];
+            for (const [key, path] of Object.entries(familyCrestsMap)) {
+                if (key !== "default" && rawFamily.includes(key)) {
+                    crestPath = path;
+                    break;
+                }
+            }
+
+            return {
+                // api info
+                id: char.id,
+                firstName: char.firstName,
+                lastName: char.lastName,
+                fullName: char.fullName,
+                title: char.title,
+                family: char.family,
+                image: char.imageUrl,
+                crest: crestPath,
+                // index to make character array
+                index: index
+            };
+        });
 
         return charactersData;
     } catch(error) { 
@@ -82,3 +113,4 @@ export async function getCharacterByIdOrSearch(identifier) {
         nextId: characters[nextIndex].id
     };
 }
+
