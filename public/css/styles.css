@@ -105,3 +105,31 @@ body {
 .modal-header, .modal-footer {
   border-color: #333;
 }
+
+body,
+.navbar,
+.modal-content,
+#catalog-grid .char-card {
+  background-color: #d6ccb0 !important; /*this tag tells the browser to use this style even if other styles are applied! i learned that today!*/
+  color: #222;
+}
+
+#catalog-grid .char-card {
+  border: 1px solid black !important;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#catalog-grid .char-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+#catalog-grid .card-title,
+.navbar .navbar-brand {
+  color: #222;
+}
+
+.navbar {
+  border-bottom: none;
+}
