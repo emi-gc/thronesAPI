@@ -21,6 +21,7 @@ body {
   cursor: pointer;
 }
 
+
 .char-card:hover {
   border-color: #876a35;
   background: #fff9ed;
@@ -76,6 +77,10 @@ body {
 .card-img-top {
   height: 250px;
   object-fit: cover;
+}
+
+.char-card .card-title {
+  color: #212529;
 }
 
 .characters-detail-img {
