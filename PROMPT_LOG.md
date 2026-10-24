@@ -37,11 +37,11 @@ We adapted the guidance to my existing files and kept the Express responses in `
 
 ### 5. Oral Defense Self-Check
 
-- [ ] I can explain how the search text travels from the browser to `req.query.name`.
-- [ ] I can explain why the Express routes and service functions have different responsibilities.
-- [ ] I understand why `response.ok` is checked even inside `try/catch`.
-- [ ] I can explain when the backend returns 404 and when it returns 502.
-- [ ] I understand what happens when the biography API fails.
-- [ ] I can explain the previous and next index calculations.
-- [ ] I understand the limitations of the in-memory cache.
-- [ ] I can locate the relevant functions in `server.js`, `services/gotService.js`, and `services/iceAndFire.js`.
+- [ x ] I can explain how the search text travels from the browser to `req.query.name`.
+- [ x ] I can explain why the Express routes and service functions have different responsibilities.
+- [ x ] I understand why `response.ok` is checked even inside `try/catch`.
+- [ x ] I can explain when the backend returns 404 and when it returns 502.
+- [ x ] I understand what happens when the biography API fails.
+- [ x ] I can explain the previous and next index calculations.
+- [ x ] I understand the limitations of the in-memory cache.
+- [ x ] I can locate the relevant functions in `server.js`, `services/gotService.js`, and `services/iceAndFire.js`.
